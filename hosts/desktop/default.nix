@@ -1,14 +1,14 @@
 #  Specific system configuration settings for desktop
 #
 
-{ pkgs, lib, user, ... }:
+{ pkgs, lib, user, config, ... }:
 
 {
   imports = [ (import ./hardware-configuration.nix) ]
     ++ (import ../../modules/desktop/virtualisation);
 
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
     kernelParams = [ "pci=noats" "amd_iommu=on" "iommu=pt" ];
     supportedFilesystems = [ "zfs" ];
     loader = {
