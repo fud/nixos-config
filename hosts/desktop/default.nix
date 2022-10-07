@@ -12,7 +12,6 @@
     kernelParams = [ "pci=noats" "amd_iommu=on" "iommu=pt" ];
     supportedFilesystems = [ "zfs" ];
     loader = {
-      systemd-boot = { enable = true; };
       efi = { canTouchEfiVariables = true; };
       grub = {
         enable = true;
