@@ -37,12 +37,12 @@ sfdisk --dump $DISK1 | sfdisk $DISK2
 
 ### Make Swap
 
-mkswap -L $DISK1-part2
-mkswap -L $DISK2-part2
+```
+mkswap -L swap $DISK1-part2
+mkswap -L swap $DISK2-part2
+```
 
 ### ZPool Boot
-
-Root partition
 
 ```
 zpool create -O mountpoint=none -O atime=off -o ashift=12 -O acltype=posixacl -O xattr=sa -O compression=lz4 zroot mirror $DISK1-part1 $DISK2-part1
@@ -91,6 +91,12 @@ Get the devices by id
 ls -la /dev/disk/by-id
 ```
 
+List partition types
+
+```
+ sgdisk --list-types
+```
+
 Partition them.
 
 ```
@@ -103,26 +109,27 @@ sfdisk --dump $DISK1 | sfdisk $DISK2
 # ZFS Data drives
 
 ```
-# zpool create -O mountpoint=none -O atime=off -o ashift=12 -O acltype=posixacl -O xattr=sa -O compression=lz4 zpool mirror $DISK1-part1 $DISK2-part1
+zpool create -O mountpoint=none -O atime=off -o ashift=12 -O acltype=posixacl -O xattr=sa -O compression=lz4 zpool mirror $DISK1-part1 $DISK2-part1
 ```
 
 ### ZFS Data Drive FS
 
 ```
-# zfs create -o mountpoint=legacy zpool/virtual/snapshots
-# zfs create -o mountpoint=legacy zpool/virtual/images
-# zfs create -o mountpoint=legacy zpool/virtual/vms/windows10
-# zfs create -o mountpoint=legacy zpool/virtual/vms/windows11
-# zfs create -o mountpoint=legacy zpool/virtual/vms/macosx
+zfs create -o mountpoint=legacy zpool/virtual
+zfs create -o mountpoint=legacy zpool/virtual/snapshots
+zfs create -o mountpoint=legacy zpool/virtual/images
+zfs create -o mountpoint=legacy zpool/virtual/vms
+zfs create -o mountpoint=legacy zpool/virtual/vms/windows10
+zfs create -o mountpoint=legacy zpool/virtual/vms/windows11
 ```
 
 ### Generate
 
 ```
-# swapon $DISK1-part2
-# nixos-generate-config --root /mnt
-# nix-env -iA nixos.git
-#  git clone https://github.com/fud/nixos-config /mnt/etc/nixos/fud
+swapon $DISK1-part2
+nixos-generate-config --root /mnt
+nix-env -iA nixos.git
+git clone https://github.com/fud/nixos-config /mnt/etc/nixos/fud
 ```
 
 ### Install
@@ -135,8 +142,8 @@ In these commands
   - desktop
 
 ```
-# cd /mnt/etc/nixos/<name>
-# nixos-install --flake .#<host>
+cd /mnt/etc/nixos/<name>
+nixos-install --flake .#<host>
 ```
 
 ### Finalisation

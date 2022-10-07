@@ -5,8 +5,7 @@
 { config, pkgs, user, ... }:
 
 {
-
-  service.xrdp = {
+  services.xrdp = {
     enable = true;
     defaultWindowManager = "startplasma-x11";
   };
