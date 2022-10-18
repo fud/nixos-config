@@ -6,7 +6,7 @@
 {
   imports = [
     (import ./hardware-configuration.nix)
-  ]
+  ];
     #++ (import ../../modules/desktop/virtualisation);
 
   boot = {
