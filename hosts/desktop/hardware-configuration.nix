@@ -9,6 +9,8 @@
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
+  boot.zfs.devNodes = "/dev/disk/by-id"
+
   fileSystems."/" = {
     device = "zroot/root";
     fsType = "zfs";
