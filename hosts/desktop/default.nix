@@ -4,8 +4,10 @@
 { pkgs, lib, user, config, ... }:
 
 {
-  imports = [ (import ./hardware-configuration.nix) ]
-    ++ (import ../../modules/desktop/virtualisation);
+  imports = [
+    (import ./hardware-configuration.nix)
+  ]
+    #++ (import ../../modules/desktop/virtualisation);
 
   boot = {
     kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
@@ -18,7 +20,7 @@
         efiSupport = true;
         device = "nodev";
         mirroredBoots = [{
-          devices = [ "/dev/disk/by-uuid/2216-6C13" ];
+          devices = [ "/dev/disk/by-uuid/6815-7BDE" ];
           path = "/boot-fallback";
         }
 
