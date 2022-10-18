@@ -31,12 +31,12 @@
   };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/67CA-BF15";
+    { device = "/dev/disk/by-uuid/ECBE-4CCA";
       fsType = "vfat";
     };
 
   fileSystems."/boot-fallback" =
-    { device = "/dev/disk/by-uuid/6815-7BDE";
+    { device = "/dev/disk/by-uuid/ED05-2808";
       fsType = "vfat";
     };
 
@@ -66,7 +66,7 @@
   };
 
    swapDevices =
-    [ { device = "/dev/disk/by-uuid/b09d8563-e879-4197-bdf3-3320f1003512"; }
+    [ { device = "/dev/disk/by-uuid/2e28e18b-a24e-419f-b988-d0e7000da491"; }
     ];
 
 }

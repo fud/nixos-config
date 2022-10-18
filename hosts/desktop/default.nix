@@ -20,7 +20,7 @@
         efiSupport = true;
         device = "nodev";
         mirroredBoots = [{
-          devices = [ "/dev/disk/by-uuid/6815-7BDE" ];
+          devices = [ "/dev/disk/by-uuid/ED05-2808" ];
           path = "/boot-fallback";
         }
 
