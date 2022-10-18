@@ -65,6 +65,8 @@
     fsType = "zfs";
   };
 
-  swapDevices = [ ];
+   swapDevices =
+    [ { device = "/dev/disk/by-uuid/b09d8563-e879-4197-bdf3-3320f1003512"; }
+    ];
 
 }
