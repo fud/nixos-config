@@ -30,15 +30,15 @@
     fsType = "zfs";
   };
 
-  fileSystems."/boot-fallback" = {
-    device = "/dev/disk/by-label/NIXBOOTB";
-    fsType = "vfat";
-  };
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/67CA-BF15";
+      fsType = "vfat";
+    };
 
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-label/NIXBOOTA";
-    fsType = "vfat";
-  };
+  fileSystems."/boot-fallback" =
+    { device = "/dev/disk/by-uuid/6815-7BDE";
+      fsType = "vfat";
+    };
 
   fileSystems."/var/lib/libvirt/images" = {
     device = "zpool/virtual/images";
