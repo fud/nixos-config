@@ -40,12 +40,12 @@
     };
 
   fileSystems."/boot/efis/ata-Samsung_SSD_850_EVO_500GB_S21GNXAG805611X-part1" =
-    { device = "/dev/disk/by-uuid/E10C-3A6E";
+    { device = "/dev/disk/by-uuid/1092-24EC";
       fsType = "vfat";
     };
 
   fileSystems."/boot/efis/ata-Samsung_SSD_860_EVO_500GB_S4BENS0N804509D-part1" =
-    { device = "/dev/disk/by-uuid/E10C-D94B";
+    { device = "/dev/disk/by-uuid/1092-C8AF";
       fsType = "vfat";
     };
 
