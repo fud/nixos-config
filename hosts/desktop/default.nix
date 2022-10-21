@@ -4,34 +4,12 @@
 { pkgs, lib, user, config, ... }:
 
 {
-  imports = [
-    (import ./hardware-configuration.nix)
-  ];
+  imports = [(import ./hardware-configuration.nix)] ++
+    [(import ./zfs.nix)];
     #++ (import ../../modules/desktop/virtualisation);
-
-  boot = {
-    kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
-    kernelParams = [ "pci=noats" "amd_iommu=on" "iommu=pt" ];
-    supportedFilesystems = [ "zfs" ];
-    loader = {
-      efi = { canTouchEfiVariables = true; };
-      grub = {
-        enable = true;
-        efiSupport = true;
-        device = "nodev";
-        mirroredBoots = [{
-          devices = [ "/dev/disk/by-uuid/ED05-2808" ];
-          path = "/boot-fallback";
-        }
-
-          ];
-      };
-    };
-  };
 
   networking = {
     hostName = "acrux";
-    hostId = "41716712";
     useDHCP = false;
     interfaces = {
       eno1 = { useDHCP = true; };

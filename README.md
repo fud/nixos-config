@@ -16,7 +16,13 @@
 
 ### Partitioning the boot drives
 
-As found from [ZFS Mirroring](https://elis.nu/blog/2019/08/encrypted-zfs-mirror-with-mirrored-boot-on-nixos/). See for better explanations.
+As found from [OpenZFS Mirroring](https://openzfs.github.io/openzfs-docs/Getting%20Started/NixOS/Root%20on%20ZFS/1-preparation.html). See for better explanations.
+
+su to root
+
+```
+sudo -u root bash
+```
 
 Get the devices by id
 
@@ -24,63 +30,123 @@ Get the devices by id
 ls -la /dev/disk/by-id
 ```
 
-Partition them.
+Declare the disk array
 
 ```
-DISK1=/dev/disk/by-id/ata-VENDOR-ID-OF-THE-FIRST-DRIVE
-DISK2=/dev/disk/by-id/ata-VENDOR-ID-OF-THE-SECOND-DRIVE
-sgdisk -n3:1M:+512M -t3:EF00 $DISK1
-sgdisk -n2:0:+8G -t2:8200 $DISK1
-sgdisk -n1:0:0 -t1:BF01 $DISK1
-sfdisk --dump $DISK1 | sfdisk $DISK2
+DISK='/dev/disk/by-id/ata-FOO /dev/disk/by-id/nvme-BAR'
 ```
 
-### Make Swap
+Set the swap size
 
 ```
-mkswap -L swap $DISK1-part2
-mkswap -L swap $DISK2-part2
+INST_PARTSIZE_SWAP=32
 ```
 
-### ZPool Boot
+Partition the disks
 
 ```
-zpool create -O mountpoint=none -O atime=off -o ashift=12 -O acltype=posixacl -O xattr=sa -O compression=lz4 zroot mirror $DISK1-part1 $DISK2-part1
+for i in ${DISK}; do
+
+sgdisk --zap-all $i
+
+sgdisk -n1:1M:+1G -t1:EF00 $i
+
+sgdisk -n2:0:+4G -t2:BE00 $i
+
+test -z $INST_PARTSIZE_SWAP || sgdisk -n4:0:+${INST_PARTSIZE_SWAP}G -t4:8200 $i
+
+if test -z $INST_PARTSIZE_RPOOL; then
+    sgdisk -n3:0:0   -t3:BF00 $i
+else
+    sgdisk -n3:0:+${INST_PARTSIZE_RPOOL}G -t3:BF00 $i
+fi
+
+sgdisk -a1 -n5:24K:+1000K -t5:EF02 $i
+done
 ```
 
-### ZFS Boot Layout
+Create the `bool` pool
 
 ```
-zfs create -o mountpoint=legacy zroot/root      # For /
-zfs create -o mountpoint=legacy zroot/root/home # For /home
-zfs create -o mountpoint=legacy zroot/root/nix  # For /nix
+zpool create \
+    -o compatibility=grub2 \
+    -o ashift=12 \
+    -o autotrim=on \
+    -O acltype=posixacl \
+    -O canmount=off \
+    -O compression=lz4 \
+    -O devices=off \
+    -O normalization=formD \
+    -O relatime=on \
+    -O xattr=sa \
+    -O mountpoint=/boot \
+    -R /mnt \
+    bpool \
+    mirror \
+    $(for i in ${DISK}; do
+       printf "$i-part2 ";
+      done)
 ```
 
-### ESP Partitions Boot
+Create the `root` pool.
 
 ```
-mkfs.vfat $DISK1-part3
-mkfs.vfat $DISK2-part3
+zpool create \
+    -o ashift=12 \
+    -o autotrim=on \
+    -R /mnt \
+    -O acltype=posixacl \
+    -O canmount=off \
+    -O compression=zstd \
+    -O dnodesize=auto \
+    -O normalization=formD \
+    -O relatime=on \
+    -O xattr=sa \
+    -O mountpoint=/ \
+    rpool \
+    mirror \
+   $(for i in ${DISK}; do
+      printf "$i-part3 ";
+     done)
 ```
 
-### Mounting Boot
+Create the root system container
 
 ```
-zpool import zroot
-zfs load-key zroot
+zfs create \
+ -o canmount=off \
+ -o mountpoint=none \
+ rpool/nixos
+```
 
-mount -t zfs zroot/root /mnt
+Create the system datasets
 
-# Create directories to mount file systems on
-mkdir /mnt/{nix,home,boot,boot-fallback}
+```
+zfs create -o canmount=on -o mountpoint=/     rpool/nixos/root
+zfs create -o canmount=on -o mountpoint=/home rpool/nixos/home
+zfs create -o canmount=off -o mountpoint=/var  rpool/nixos/var
+zfs create -o canmount=on  rpool/nixos/var/lib
+zfs create -o canmount=on  rpool/nixos/var/log
+```
 
-# Mount the rest of the ZFS file systems
-mount -t zfs zroot/root/nix /mnt/nix
-mount -t zfs zroot/root/home /mnt/home
+Create the boot datasets
 
-# Mount both of the ESP's
-mount $DISK1-part3 /mnt/boot
-mount $DISK2-part3 /mnt/boot-fallback
+```
+zfs create -o canmount=off -o mountpoint=none bpool/nixos
+zfs create -o canmount=on -o mountpoint=/boot bpool/nixos/root
+```
+
+Format and mount ESP
+
+```
+for i in ${DISK}; do
+ mkfs.vfat -n EFI ${i}-part1
+ mkdir -p /mnt/boot/efis/${i##*/}-part1
+ mount -t vfat ${i}-part1 /mnt/boot/efis/${i##*/}-part1
+done
+
+mkdir -p /mnt/boot/efi
+mount -t vfat $(echo $DISK | cut -f1 -d\ )-part1 /mnt/boot/efi
 ```
 
 ### Partitioning the Data drives
@@ -123,10 +189,21 @@ zfs create -o mountpoint=legacy zpool/virtual/vms/windows10
 zfs create -o mountpoint=legacy zpool/virtual/vms/windows11
 ```
 
+### System config
+
+Disable the stale cache
+
+```
+mkdir -p /mnt/etc/zfs/
+rm -f /mnt/etc/zfs/zpool.cache
+touch /mnt/etc/zfs/zpool.cache
+chmod a-w /mnt/etc/zfs/zpool.cache
+chattr +i /mnt/etc/zfs/zpool.cache
+```
+
 ### Generate
 
 ```
-swapon $DISK1-part2
 nixos-generate-config --root /mnt
 nix-env -iA nixos.git
 git clone https://github.com/fud/nixos-config /mnt/etc/nixos/fud

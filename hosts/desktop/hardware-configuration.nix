@@ -4,42 +4,55 @@
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
   boot.initrd.availableKernelModules =
-    [ "xhci_pci" "ahci" "usbhid" "sd_mod" "amdgpu" "vfio-pci" ];
+    [ "xhci_pci" "ahci" "usbhid" "sd_mod" "amdgpu" "vfio-pci" "uas"];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
-  boot.zfs.devNodes = "/dev/disk/by-path";
+  fileSystems."/" =
+    { device = "rpool/nixos/root";
+      fsType = "zfs";
+      options = [ "zfsutil" "X-mount.mkdir" ];
+    };
 
-  fileSystems."/" = {
-    device = "zroot/root";
-    fsType = "zfs";
-  };
+  fileSystems."/home" =
+    { device = "rpool/nixos/home";
+      fsType = "zfs";
+      options = [ "zfsutil" "X-mount.mkdir" ];
+    };
 
-  fileSystems."/nix" = {
-    device = "zroot/root/nix";
-    fsType = "zfs";
-  };
+  fileSystems."/var/lib" =
+    { device = "rpool/nixos/var/lib";
+      fsType = "zfs";
+      options = [ "zfsutil" "X-mount.mkdir" ];
+    };
 
-  fileSystems."/nix/store" = {
-    device = "/nix/store";
-    fsType = "none";
-    options = [ "bind" ];
-  };
-
-  fileSystems."/home" = {
-    device = "zroot/root/home";
-    fsType = "zfs";
-  };
+  fileSystems."/var/log" =
+    { device = "rpool/nixos/var/log";
+      fsType = "zfs";
+      options = [ "zfsutil" "X-mount.mkdir" ];
+    };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/ECBE-4CCA";
+    { device = "bpool/nixos/root";
+      fsType = "zfs";
+      options = [ "zfsutil" "X-mount.mkdir" ];
+    };
+
+  fileSystems."/boot/efis/ata-Samsung_SSD_850_EVO_500GB_S21GNXAG805611X-part1" =
+    { device = "/dev/disk/by-uuid/E10C-3A6E";
       fsType = "vfat";
     };
 
-  fileSystems."/boot-fallback" =
-    { device = "/dev/disk/by-uuid/ED05-2808";
+  fileSystems."/boot/efis/ata-Samsung_SSD_860_EVO_500GB_S4BENS0N804509D-part1" =
+    { device = "/dev/disk/by-uuid/E10C-D94B";
       fsType = "vfat";
+    };
+
+  fileSystems."/boot/efi" =
+    { device = "/boot/efis/ata-Samsung_SSD_850_EVO_500GB_S21GNXAG805611X-part1";
+      fsType = "none";
+      options = [ "bind" ];
     };
 
   fileSystems."/var/lib/libvirt/images" = {
@@ -67,8 +80,7 @@
     fsType = "zfs";
   };
 
-   swapDevices =
-    [ { device = "/dev/disk/by-uuid/2e28e18b-a24e-419f-b988-d0e7000da491"; }
-    ];
+   swapDevices = [ ];
 
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
