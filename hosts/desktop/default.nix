@@ -6,6 +6,7 @@
 {
   imports = [(import ./hardware-configuration.nix)] ++
     [(import ./zfs.nix)] ++
+    [(import ../../modules/desktop/bspwm/bspwm.nix)] ++
     (import ../../modules/desktop/virtualisation);
 
   networking = {
