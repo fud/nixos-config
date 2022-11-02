@@ -5,8 +5,8 @@
 
 {
   imports = [(import ./hardware-configuration.nix)] ++
-    [(import ./zfs.nix)];
-    #++ (import ../../modules/desktop/virtualisation);
+    [(import ./zfs.nix)] ++
+    (import ../../modules/desktop/virtualisation);
 
   networking = {
     hostName = "acrux";
