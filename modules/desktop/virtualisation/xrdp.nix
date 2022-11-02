@@ -7,7 +7,7 @@
 {
   services.xrdp = {
     enable = true;
-    defaultWindowManager = "bspwm";
+    defaultWindowManager = "${pkgs.bspwm}/bin/bspwm";
   };
 
   networking.firewall.allowedTCPPorts = [ 3389 ];
