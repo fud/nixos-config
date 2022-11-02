@@ -7,7 +7,7 @@
 {
   services.xrdp = {
     enable = true;
-    defaultWindowManager = "startplasma-x11";
+    defaultWindowManager = "bspwm";
   };
 
   networking.firewall.allowedTCPPorts = [ 3389 ];
