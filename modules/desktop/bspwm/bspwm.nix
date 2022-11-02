@@ -8,7 +8,6 @@
       enable = true;
 
       layout = "us";
-      xkbOptions = "eurosign:e";
       libinput.enable = true;
 
       displayManager = {
