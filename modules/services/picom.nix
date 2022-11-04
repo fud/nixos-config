@@ -21,7 +21,7 @@
         };
       });                                           # Override picom to use pijulius' version
 
-      backend = "glx";                              # Rendering either with glx or xrender. You'll know if you need to switch this.
+      backend = "xrender";                              # Rendering either with glx or xrender. You'll know if you need to switch this.
       vSync = true;                                 # Should fix screen tearing
 
       #activeOpacity = 0.93;                         # Node transparency
