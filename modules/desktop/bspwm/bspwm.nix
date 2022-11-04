@@ -28,10 +28,10 @@
             };
           };
         };
-        defaultSession = "none+bspwm";            # none+bspwm -> no real display manager
-      };
+      defaultSession = "bspwm";
+
       windowManager= {
-        bspwm = {                                 # Window Manager
+        bspwm = {
           enable = true;
         };
       };
