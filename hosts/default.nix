@@ -18,15 +18,16 @@ in {
       ./desktop
       ./configuration.nix
 
-    #   home-manager.nixosModules.home-manager
-    #   { # Home-Manager module that is used.
-    #     home-manager.useGlobalPkgs = true;
-    #     home-manager.useUserPackages = true;
-    #     home-manager.extraSpecialArgs = { inherit user; }; # Pass flake variable
-    #     home-manager.users.${user} = {
-    #       imports = [ (import ./home.nix) ] ++ [ (import ./desktop/home.nix) ];
-    #     };
-    #   }
+      home-manager.nixosModules.home-manager
+      {
+        home-manager.useGlobalPkgs = true;
+        home-manager.useUserPackages = true;
+        home-manager.extraSpecialArgs = { inherit user; }; # Pass flake variable
+        home-manager.users.${user} = {
+          imports = [ (import ./home.nix) ] ++
+                    [ (import ./desktop/home.nix) ];
+        };
+      }
     ];
   };
 }

@@ -38,5 +38,12 @@
           inherit inputs nixpkgs home-manager nur user location;
         }
       );
+
+       homeConfigurations = (
+        import ./nix {
+          inherit (nixpkgs) lib;
+          inherit inputs nixpkgs home-manager user;
+        }
+      );
   };
 }
