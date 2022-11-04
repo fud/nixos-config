@@ -3,7 +3,7 @@
 {
   imports =
     [
-      ../../modules/desktop/bspwm/home.nix
+      #../../modules/desktop/bspwm/home.nix
       #../../modules/desktop/hyprland/home.nix  # Window Manager
     ];
 
